@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwiftPay FaithCoin</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary: #0077ff;
+  --primary-dark: #005fcc;
+  --secondary: #6c5ce7;
+  --dark: #1e272e;
+  --light: #f5f6fa;
+  --success: #2ecc71;
+  --danger: #e74c3c;
+  --warning: #f39c12;
+  --gray: #95a5a6;
+  --dark-gray: #2d3436;
+  --white: #ffffff;
+  --yellow: #FFD700;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #1e272e;
+  --bg-secondary: #2d3436;
+  --text-primary: #f5f6fa;
+  --text-secondary: #dfe6e9;
+  --card-bg: #2d3436;
+  --border-color: #636e72;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f5f6fa;
+  --bg-secondary: #dfe6e9;
+  --text-primary: #2d3436;
+  --text-secondary: #636e72;
+  --card-bg: #ffffff;
+  --border-color: #dfe6e9;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  max-width: 500px;
+  margin: 0 auto;
+  height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  padding: 20px;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Auth Styles */
+.auth-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding-top: 40px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.logo-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.logo-text {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.auth-card {
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.input-group input {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 16px;
+}
+
+.btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 119, 255, 0.3);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.msg {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 14px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.msg.success {
+  background-color: rgba(46, 204, 113, 0.1);
+  color: var(--success);
+}
+
+.msg.error {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: var(--danger);
+}
+
+/* Dashboard Styles */
+.dashboard {
+  padding-bottom: 80px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  overflow: hidden;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-info h2 {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.user-info p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.settings-btn {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.balance-card {
+  background: LightGray;
+  border-radius: 20px;
+  padding: 25px;
+  color: white;
+  margin-bottom: 25px;
+  box-shadow: 0 10px 25px rgba(0, 119, 255, 0.3);
+}
+
+.balance-title {
+  font-size: 16px;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+
+.balance-amount {
+  font-size: 36px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  color: 1px solid var(--border-color);
+}
+
+.coin-icon {
+  width: 30px;
+  height: 30px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.coin-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 55%;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.action-btn {
+  background-color: var(--card-bg);
+  border-radius: 15px;
+  padding: 15px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.action-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.action-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: var(--primary);
+}
+
+.action-text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.section-title {
+  font-size: 18px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.shops-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.shop-card {
+  background-color: var(--card-bg);
+  border-radius: 15px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.shop-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.shop-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.shop-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.shop-name {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.transactions-list {
+  background-color: var(--card-bg);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.transaction-item:last-child {
+  border-bottom: none;
+}
+
+.transaction-left {
+  display: flex;
+  align-items: center;
+}
+
+.transaction-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  font-size: 18px;
+}
+
+.transaction-icon.receive {
+  background-color: rgba(46, 204, 113, 0.1);
+  color: var(--success);
+}
+
+.transaction-icon.send {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: var(--danger);
+}
+
+.transaction-details h4 {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.transaction-details p {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.transaction-amount {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.transaction-amount.receive {
+  color: var(--success);
+}
+
+.transaction-amount.send {
+  color: var(--danger);
+}
+
+/* Send/Receive Pages */
+.send-page, .receive-page, .pay-bills-page {
+  padding-bottom: 80px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 24px;
+  margin-right: 15px;
+  cursor: pointer;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.receive-id-box {
+  background-color: var(--yellow);
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: center;
+  color: #333;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+/* Settings Styles */
+.settings-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-primary);
+  z-index: 1000;
+  padding: 20px;
+  overflow-y: auto;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.settings-title {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.settings-section {
+  margin-bottom: 30px;
+}
+
+.settings-section-title {
+  font-size: 18px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+.settings-item-left {
+  display: flex;
+  align-items: center;
+}
+
+.settings-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: rgba(0, 119, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  color: var(--primary);
+  font-size: 18px;
+}
+
+.settings-text h4 {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.settings-text p {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--gray);
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--primary);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}
+
+.social-footer {
+  margin-top: 40px;
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.social-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.social-icon:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 119, 255, 0.3);
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--card-bg);
+  display: flex;
+  justify-content: space-around;
+  padding: 15px 0;
+  border-top: 1px solid var(--border-color);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.nav-item.active {
+  color: var(--primary);
+}
+
+.nav-icon {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+/* Notification */
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--card-bg);
+  border-radius: 10px;
+  padding: 15px 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  max-width: 90%;
+  animation: slideIn 0.3s ease-out;
+}
+
+.notification.success {
+  border-left: 4px solid var(--success);
+}
+
+.notification.error {
+  border-left: 4px solid var(--danger);
+}
+
+.notification.info {
+  border-left: 4px solid var(--primary);
+}
+
+.notification-icon {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.notification.success .notification-icon {
+  color: var(--success);
+}
+
+.notification.error .notification-icon {
+  color: var(--danger);
+}
+
+.notification.info .notification-icon {
+  color: var(--primary);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 400px) {
+  .container {
+    padding: 15px;
+  }
+  
+  .quick-actions, .shops-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+</style>
+</head>
+<body data-theme="light">
+<!-- Auth Container -->
+<div class="container auth-container" id="auth-container">
+  <div class="auth-header">
+    <div class="logo">
+      <div class="logo-icon">S</div>
+      <div class="logo-text">SwiftPay</div>
+    </div>
+    <p>SwiftPay makes digital payments simple, fast, and secure.
+With Cent currency, you can send and receive money instantly anytime.
+Enjoy a smooth wallet experience designed just for you.
+</p>
+  </div>
+  
+  <div class="auth-card">
+    <h2 class="form-title" id="form-title">Sign Up</h2>
+    
+    <div class="input-group">
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" placeholder="Enter your full name">
+    </div>
+    
+    <div class="input-group">
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="Enter your email">
+    </div>
+    
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Create a password">
+    </div>
+    
+    <button class="btn" id="signup-btn">Sign Up</button>
+    
+    <p class="msg" id="msg"></p>
+    
+    <p style="text-align: center; margin-top: 20px;">
+      Already have an account? <a href="#" id="switch-form" style="color: var(--primary);">Login</a>
+    </p>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div class="container dashboard hidden" id="dashboard">
+  <div class="header">
+    <div class="header-left">
+      <div class="user-avatar">
+        <img src="https://i.postimg.cc/rRJ2CZ2d/images-8.jpg" alt="User Avatar">
+      </div>
+      <div class="user-info">
+        <h2 id="user-fullName">User Name</h2>
+        <p id="user-email">user@example.com</p>
+      </div>
+    </div>
+    <button class="settings-btn" id="settings-btn">
+      <i class="fas fa-cog"></i>
+    </button>
+  </div>
+  
+  <div class="balance-card">
+    <div class="balance-title">Your Total Balance </div>
+    <div class="balance-amount">
+      <div class="coin-icon">
+        <img src="https://i.postimg.cc/f3sDxsY3/Gemini-Generated-Image-kcekktkcekktkcek.png" alt="FaithCoin">
+      </div>
+      <span id="user-balance">0</span>₣🄲
+    </div>
+  </div>
+  <h4>Main Menu</h4>
+  <div class="quick-actions">
+    <div class="action-btn" id="send-btn">
+      <div class="action-icon">
+        <i class="fas fa-paper-plane"></i>
+      </div>
+      <div class="action-text">Send</div>
+    </div>
+    <div class="action-btn" id="receive-btn">
+      <div class="action-icon">
+        <i class="fas fa-download"></i>
+      </div>
+      <div class="action-text">Receive</div>
+    </div>
+    <div class="action-btn" id="scan-btn">
+      <div class="action-icon">
+        <i class="fas fa-qrcode"></i>
+      </div>
+      <div class="action-text">Scan</div>
+    </div>
+    <div class="action-btn" id="history-btn">
+      <div class="action-icon">
+        <i class="fas fa-history"></i>
+      </div>
+      <div class="action-text">Transactions</div>
+    </div>
+  </div>
+  
+  <h3 class="section-title">Purchase Subscription By SwiftPay</h3>
+  <div class="shops-grid">
+    <!-- Shop items will be generated dynamically -->
+  </div>
+  
+  <h3 class="section-title">Recent Transactions</h3>
+  <div class="transactions-list" id="transactions">
+    <!-- Transactions will be generated dynamically -->
+  </div>
+</div>
+
+<!-- Send Page -->
+<div class="container send-page hidden" id="send-page">
+  <div class="page-header">
+    <button class="back-btn" id="back-from-send">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <h2 class="page-title">Send FaithCoin</h2>
+  </div>
+  
+  <div class="input-group">
+    <label for="recipient-id">Recipient ID</label>
+    <input type="text" id="recipient-id" placeholder="Enter recipient ID">
+  </div>
+  
+  <div class="input-group">
+    <label for="amount">Amount (FC)</label>
+    <input type="number" id="amount" placeholder="Enter amount">
+  </div>
+  
+  <button class="btn" id="confirm-send-btn">Send FaithCoin</button>
+</div>
+
+<!-- Receive Page -->
+<div class="container receive-page hidden" id="receive-page">
+  <div class="page-header">
+    <button class="back-btn" id="back-from-receive">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <h2 class="page-title">Receive FaithCoin</h2>
+  </div>
+  
+  <div style="text-align: center; margin: 20px 0;">
+    <div style="width: 200px; height: 200px; background: #f0f0f0; margin: 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+      <i class="fas fa-qrcode" style="font-size: 80px; color: #ccc;"></i>
+    </div>
+  </div>
+  
+  <div class="input-group">
+    <label>Your Reception ID</label>
+    <div class="receive-id-box" id="receive-id-box">
+      <!-- Reception ID will be inserted here -->
+    </div>
+    <button id="copy-id" class="btn">Copy Reception ID</button>
+  </div>
+  
+  <div style="margin-top: 30px; padding: 15px; background-color: var(--card-bg); border-radius: 10px;">
+    <h4 style="margin-bottom: 10px;">Instructions:</h4>
+    <ol style="padding-left: 20px; font-size: 14px;">
+      <li style="margin-bottom: 8px;">Share your Reception ID with the sender</li>
+      <li style="margin-bottom: 8px;">The sender will enter your ID in their SwiftPay app</li>
+      <li style="margin-bottom: 8px;">Once they send the coins, they will appear in your balance</li>
+      <li>You can check your transaction history for confirmation</li>
+    </ol>
+  </div>
+</div>
+
+<!-- Pay Bills Page -->
+<div class="container pay-bills-page hidden" id="pay-bills-page">
+  <div class="page-header">
+    <button class="back-btn" id="back-from-bills">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+    <h2 class="page-title">Pay Bills</h2>
+  </div>
+  
+  <div class="shops-grid" id="bills-shops-grid">
+    <!-- Shop items will be generated dynamically -->
+  </div>
+  
+  <div style="margin-top: 30px; padding: 15px; background-color: var(--card-bg); border-radius: 10px;">
+    <h4 style="margin-bottom: 10px;">Your Reception ID</h4>
+    <div class="receive-id-box" id="bills-receive-id-box">
+      <!-- Reception ID will be inserted here -->
+    </div>
+    <button id="copy-bills-id" class="btn" style="margin-top: 15px;">Copy Reception ID</button>
+  </div>
+</div>
+
+<!-- Settings Panel -->
+<div class="settings-container hidden" id="settings-container">
+  <div class="settings-header">
+    <h2 class="settings-title">Settings</h2>
+    <button class="close-btn" id="close-settings">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  
+  <div class="settings-section">
+    <h3 class="settings-section-title">Account</h3>
+    
+    <div class="settings-item">
+      <div class="settings-item-left">
+        <div class="settings-icon">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="settings-text">
+          <h4>Profile</h4>
+          <p>Update your personal information</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="settings-item">
+      <div class="settings-item-left">
+        <div class="settings-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="settings-text">
+          <h4>Security</h4>
+          <p>Change password and security settings</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="settings-section">
+    <h3 class="settings-section-title">Preferences</h3>
+    
+    <div class="settings-item">
+      <div class="settings-item-left">
+        <div class="settings-icon">
+          <i class="fas fa-moon"></i>
+        </div>
+        <div class="settings-text">
+          <h4>Dark Mode</h4>
+          <p>Toggle dark/light theme</p>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="dark-mode-toggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+  
+  <div class="settings-section">
+    <h3 class="settings-section-title">About</h3>
+    
+    <div class="settings-item" id="developer-info">
+      <div class="settings-item-left">
+        <div class="settings-icon">
+          <i class="fas fa-code"></i>
+        </div>
+        <div class="settings-text">
+          <h4>Developer</h4>
+          <p>Learn more about the developer</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <button class="btn btn-secondary" id="logout-btn">Log Out</button>
+  
+  <div class="social-footer">
+    <p>Connect with us</p>
+    <div class="social-icons">
+      <a href="https://facebook.com/as.arafat6" class="social-icon">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+      <a href="https://github.com/little-faith-bd" class="social-icon">
+        <i class="fab fa-github"></i>
+      </a>
+      <a href="https://instagram.com/little_faith_bd" class="social-icon">
+        <i class="fab fa-instagram"></i>
+      </a>
+      <a href="https://t.me/SwiftPay_online_bot" class="social-icon">
+        <i class="fab fa-telegram"></i>
+      </a>
+      <a href="mailto:swiftpaybyfaith@gmail.com" class="social-icon">
+        <i class="fas fa-envelope"></i>
+      </a>
+      <a href="https://wa.me/+8801610709657" class="social-icon">
+        <i class="fab fa-whatsapp"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="nav-home">
+    <div class="nav-icon">
+      <i class="fas fa-home"></i>
+    </div>
+    <div>Home</div>
+  </div>
+  <div class="nav-item" id="nav-transactions">
+    <div class="nav-icon">
+      <i class="fas fa-exchange-alt"></i>
+    </div>
+    <div>Transactions</div>
+  </div>
+  <div class="nav-item" id="nav-scan">
+    <div class="nav-icon">
+      <i class="fas fa-qrcode"></i>
+    </div>
+    <div>Scan</div>
+  </div>
+  <div class="nav-item" id="nav-profile">
+    <div class="nav-icon">
+      <i class="fas fa-user"></i>
+    </div>
+    <div>Profile</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, addDoc, query, orderBy, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Firebase Config
+const firebaseConfig = {
+    apiKey: "AIzaSyDifBzIm3muo0KXxv-HXXmvF9JT6omSJ-g",
+    authDomain: "swiftpay-58172.firebaseapp.com",
+    projectId: "swiftpay-58172",
+    storageBucket: "swiftpay-58172.appspot.com",
+    messagingSenderId: "717981371919",
+    appId: "1:717981371919:web:16ab900c83dfe8f39d5d7a"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// UI Elements
+const authContainer = document.getElementById("auth-container");
+const dashboard = document.getElementById("dashboard");
+const sendPage = document.getElementById("send-page");
+const receivePage = document.getElementById("receive-page");
+const payBillsPage = document.getElementById("pay-bills-page");
+const settingsContainer = document.getElementById("settings-container");
+const fullNameField = document.getElementById("fullName");
+const emailField = document.getElementById("email");
+const passwordField = document.getElementById("password");
+const signupBtn = document.getElementById("signup-btn");
+const msgEl = document.getElementById("msg");
+const switchFormLink = document.getElementById("switch-form");
+
+const userFullName = document.getElementById("user-fullName");
+const userEmail = document.getElementById("user-email");
+const userBalance = document.getElementById("user-balance");
+const settingsBtn = document.getElementById("settings-btn");
+const closeSettingsBtn = document.getElementById("close-settings");
+const logoutBtn = document.getElementById("logout-btn");
+const darkModeToggle = document.getElementById("dark-mode-toggle");
+
+const sendBtn = document.getElementById("send-btn");
+const receiveBtn = document.getElementById("receive-btn");
+const scanBtn = document.getElementById("scan-btn");
+const historyBtn = document.getElementById("history-btn");
+
+const backFromSend = document.getElementById("back-from-send");
+const backFromReceive = document.getElementById("back-from-receive");
+const backFromBills = document.getElementById("back-from-bills");
+const confirmSendBtn = document.getElementById("confirm-send-btn");
+const recipientIdField = document.getElementById("recipient-id");
+const amountField = document.getElementById("amount");
+
+const receiveIdBox = document.getElementById("receive-id-box");
+const billsReceiveIdBox = document.getElementById("bills-receive-id-box");
+const copyBtn = document.getElementById("copy-id");
+const copyBillsBtn = document.getElementById("copy-bills-id");
+
+const developerInfo = document.getElementById("developer-info");
+
+const transactionsDiv = document.getElementById("transactions");
+const shopsGrid = document.querySelector(".shops-grid");
+const billsShopsGrid = document.getElementById("bills-shops-grid");
+
+const navHome = document.getElementById("nav-home");
+const navTransactions = document.getElementById("nav-transactions");
+const navScan = document.getElementById("nav-scan");
+const navProfile = document.getElementById("nav-profile");
+
+// Shop data with real icon URLs
+const shops = [
+  { name: "Amazon", icon: "https://cdn-icons-png.flaticon.com/512/906/906352.png" },
+  { name: "Netflix", icon: "https://cdn-icons-png.flaticon.com/512/732/732228.png" },
+  { name: "Spotify", icon: "https://cdn-icons-png.flaticon.com/512/2111/2111624.png" },
+  { name: "Uber", icon: "https://cdn-icons-png.flaticon.com/512/5969/5969282.png" },
+  { name: "Starbucks", icon: "https://cdn-icons-png.flaticon.com/512/5977/5977591.png" },
+  { name: "McDonald's", icon: "https://cdn-icons-png.flaticon.com/512/732/732217.png" },
+  { name: "Apple", icon: "https://cdn-icons-png.flaticon.com/512/179/179309.png" },
+  { name: "Google", icon: "https://cdn-icons-png.flaticon.com/512/300/300221.png" },
+  { name: "Airbnb", icon: "https://cdn-icons-png.flaticon.com/512/5968/5968250.png" },
+  { name: "Uber Eats", icon: "https://cdn-icons-png.flaticon.com/512/873/873281.png" },
+  { name: "Walmart", icon: "https://cdn-icons-png.flaticon.com/512/5968/5968316.png" },
+  { name: "Target", icon: "https://cdn-icons-png.flaticon.com/512/882/882275.png" },
+  { name: "Best Buy", icon: "https://cdn-icons-png.flaticon.com/512/882/882275.png" },
+  { name: "Nike", icon: "https://cdn-icons-png.flaticon.com/512/732/732230.png" },
+  { name: "Adidas", icon: "https://cdn-icons-png.flaticon.com/512/731/731962.png" },
+  { name: "H&M", icon: "https://cdn-icons-png.flaticon.com/512/882/882275.png" },
+  { name: "Zara", icon: "https://cdn-icons-png.flaticon.com/512/882/882275.png" },
+  { name: "Sephora", icon: "https://cdn-icons-png.flaticon.com/512/882/882275.png" },
+  { name: "Domino's", icon: "https://cdn-icons-png.flaticon.com/512/882/882275.png" },
+  { name: "Subway", icon: "https://cdn-icons-png.flaticon.com/512/882/882275.png" }
+];
+
+// Generate shop cards
+function generateShopCards() {
+  shopsGrid.innerHTML = "";
+  billsShopsGrid.innerHTML = "";
+  
+  shops.forEach(shop => {
+    // For dashboard
+    const shopCard = document.createElement("div");
+    shopCard.className = "shop-card";
+    shopCard.innerHTML = `
+      <div class="shop-icon">
+        <img src="${shop.icon}" alt="${shop.name}">
+      </div>
+      <div class="shop-name">${shop.name}</div>
+    `;
+    shopCard.addEventListener("click", () => {
+      showNotification(`Payment to ${shop.name} is coming soon!`, 'info');
+    });
+    shopsGrid.appendChild(shopCard);
+    
+    // For bills page
+    const billsShopCard = document.createElement("div");
+    billsShopCard.className = "shop-card";
+    billsShopCard.innerHTML = `
+      <div class="shop-icon">
+        <img src="${shop.icon}" alt="${shop.name}">
+      </div>
+      <div class="shop-name">${shop.name}</div>
+    `;
+    billsShopCard.addEventListener("click", () => {
+      showNotification(`Payment to ${shop.name} is coming soon!`, 'info');
+    });
+    billsShopsGrid.appendChild(billsShopCard);
+  });
+}
+
+// Initialize shop cards
+generateShopCards();
+
+// Notification system
+function showNotification(message, type = 'info') {
+  // Remove any existing notification
+  const existingNotification = document.querySelector('.notification');
+  if (existingNotification) {
+    existingNotification.remove();
+  }
+  
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  
+  let icon = 'info-circle';
+  if (type === 'success') icon = 'check-circle';
+  if (type === 'error') icon = 'exclamation-circle';
+  
+  notification.innerHTML = `
+    <div class="notification-icon">
+      <i class="fas fa-${icon}"></i>
+    </div>
+    <div class="notification-message">${message}</div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Auto remove after 3 seconds
+  setTimeout(() => {
+    notification.remove();
+  }, 3000);
+}
+
+// Theme management
+function setTheme(theme) {
+  document.body.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+}
+
+// Load saved theme
+const savedTheme = localStorage.getItem("theme") || "light";
+setTheme(savedTheme);
+darkModeToggle.checked = savedTheme === "dark";
+
+// Toggle theme
+darkModeToggle.addEventListener("change", () => {
+  setTheme(darkModeToggle.checked ? "dark" : "light");
+});
+
+// Switch between Sign Up and Login
+let isLoginMode = false;
+
+switchFormLink.addEventListener("click", (e) => {
+  e.preventDefault();
+  isLoginMode = !isLoginMode;
+  
+  const formTitle = document.getElementById("form-title");
+  const signupBtn = document.getElementById("signup-btn");
+  
+  if (isLoginMode) {
+    formTitle.textContent = "Login";
+    signupBtn.textContent = "Login";
+    switchFormLink.textContent = "Sign Up";
+    fullNameField.parentElement.style.display = "none";
+  } else {
+    formTitle.textContent = "Sign Up";
+    signupBtn.textContent = "Sign Up";
+    switchFormLink.textContent = "Login";
+    fullNameField.parentElement.style.display = "block";
+  }
+});
+
+// Sign Up / Login
+signupBtn.addEventListener("click", async () => {
+  const email = emailField.value.trim();
+  const password = passwordField.value;
+  
+  if (!email || !password) {
+    showNotification("Please enter all required fields", 'error');
+    return;
+  }
+  
+  if (!isLoginMode) {
+    const fullName = fullNameField.value.trim();
+    if (!fullName) {
+      showNotification("Please enter your full name", 'error');
+      return;
+    }
+    
+    // Sign Up
+    try {
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      await setDoc(doc(db, "users", userCred.user.uid), {
+        fullName: fullName,
+        email: email,
+        faithCoinBalance: 100
+      });
+      loadDashboard(userCred.user);
+      showNotification("Account created successfully!", 'success');
+    } catch (err) {
+      showNotification("Error creating account: " + err.message, 'error');
+    }
+  } else {
+    // Login
+    try {
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      loadDashboard(userCred.user);
+      showNotification("Logged in successfully!", 'success');
+    } catch (err) {
+      showNotification("Error logging in: " + err.message, 'error');
+    }
+  }
+});
+
+// Load Dashboard
+function loadDashboard(user) {
+  authContainer.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  sendPage.classList.add("hidden");
+  receivePage.classList.add("hidden");
+  payBillsPage.classList.add("hidden");
+  
+  const userRef = doc(db, "users", user.uid);
+
+  onSnapshot(userRef, snap => {
+    if (snap.exists()) {
+      const data = snap.data();
+      userFullName.textContent = data.fullName;
+      userEmail.textContent = data.email;
+      userBalance.textContent = data.faithCoinBalance;
+      receiveIdBox.textContent = user.uid;
+      billsReceiveIdBox.textContent = user.uid;
+    }
+  });
+
+  // Load Transactions
+  const transactionsQuery = query(collection(db, "transactions"), orderBy("timestamp", "desc"));
+  onSnapshot(transactionsQuery, snap => {
+    transactionsDiv.innerHTML = "";
+    snap.forEach(docSnap => {
+      const t = docSnap.data();
+      if (t.from === user.uid || t.to === user.uid) {
+        const isSent = t.from === user.uid;
+        
+        // Get sender/receiver name
+        const otherUserId = isSent ? t.to : t.from;
+        const otherUserRef = doc(db, "users", otherUserId);
+        
+        getDoc(otherUserRef).then(otherUserSnap => {
+          let otherUserName = "Unknown User";
+          if (otherUserSnap.exists()) {
+            otherUserName = otherUserSnap.data().fullName;
+          }
+          
+          const transactionItem = document.createElement("div");
+          transactionItem.className = "transaction-item";
+          transactionItem.innerHTML = `
+            <div class="transaction-left">
+              <div class="transaction-icon ${isSent ? 'send' : 'receive'}">
+                <i class="fas fa-${isSent ? 'arrow-up' : 'arrow-down'}"></i>
+              </div>
+              <div class="transaction-details">
+                <h4>${isSent ? 'Sent to ' + otherUserName : 'Received from ' + otherUserName}</h4>
+                <p>${t.timestamp?.toDate().toLocaleDateString() || 'Unknown date'}</p>
+              </div>
+            </div>
+            <div class="transaction-amount ${isSent ? 'send' : 'receive'}">
+              ${isSent ? '-' : '+'}${t.amount} FC
+            </div>
+          `;
+          transactionsDiv.appendChild(transactionItem);
+        });
+      }
+    });
+    
+    if (transactionsDiv.children.length === 0) {
+      transactionsDiv.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Your transactions History</p>';
+    }
+  });
+}
+
+// Navigation
+sendBtn.addEventListener("click", () => {
+  dashboard.classList.add("hidden");
+  sendPage.classList.remove("hidden");
+});
+
+receiveBtn.addEventListener("click", () => {
+  dashboard.classList.add("hidden");
+  receivePage.classList.remove("hidden");
+});
+
+scanBtn.addEventListener("click", () => {
+  showNotification("Scan feature coming soon!", 'info');
+});
+
+historyBtn.addEventListener("click", () => {
+  // Already on dashboard with transactions visible
+  showNotification("Transaction history is displayed below", 'info');
+});
+
+// Back buttons
+backFromSend.addEventListener("click", () => {
+  sendPage.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+});
+
+backFromReceive.addEventListener("click", () => {
+  receivePage.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+});
+
+backFromBills.addEventListener("click", () => {
+  payBillsPage.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+});
+
+// Pay Bills (from dashboard shops)
+shopsGrid.addEventListener("click", (e) => {
+  const shopCard = e.target.closest('.shop-card');
+  if (shopCard) {
+    dashboard.classList.add("hidden");
+    payBillsPage.classList.remove("hidden");
+  }
+});
+
+// Settings
+settingsBtn.addEventListener("click", () => {
+  settingsContainer.classList.remove("hidden");
+});
+
+closeSettingsBtn.addEventListener("click", () => {
+  settingsContainer.classList.add("hidden");
+});
+
+// Developer info
+developerInfo.addEventListener("click", () => {
+  settingsContainer.classList.add("hidden");
+  window.open("https://faith-profile.netlify.app", "_blank");
+});
+
+// Copy buttons
+copyBtn.addEventListener("click", () => {
+  navigator.clipboard.writeText(receiveIdBox.textContent)
+    .then(() => {
+      showNotification("Reception ID copied to clipboard!", 'success');
+    })
+    .catch(() => {
+      showNotification("Failed to copy ID", 'error');
+    });
+});
+
+copyBillsBtn.addEventListener("click", () => {
+  navigator.clipboard.writeText(billsReceiveIdBox.textContent)
+    .then(() => {
+      showNotification("Reception ID copied to clipboard!", 'success');
+    })
+    .catch(() => {
+      showNotification("Failed to copy ID", 'error');
+    });
+});
+
+// Send FaithCoin
+confirmSendBtn.addEventListener("click", async () => {
+  const user = auth.currentUser;
+  const recipientId = recipientIdField.value.trim();
+  const amount = parseInt(amountField.value);
+  
+  if (!recipientId || !amount || amount <= 0) {
+    showNotification("Please enter valid recipient ID and amount", 'error');
+    return;
+  }
+  
+  if (recipientId === user.uid) {
+    showNotification("You cannot send coins to yourself", 'error');
+    return;
+  }
+  
+  try {
+    await runTransaction(db, async (transaction) => {
+      const senderRef = doc(db, "users", user.uid);
+      const recipientRef = doc(db, "users", recipientId);
+      
+      const senderDoc = await transaction.get(senderRef);
+      const recipientDoc = await transaction.get(recipientRef);
+      
+      if (!recipientDoc.exists()) {
+        throw new Error("Recipient not found");
+      }
+      
+      const senderBalance = senderDoc.data().faithCoinBalance;
+      if (senderBalance < amount) {
+        throw new Error("Insufficient balance");
+      }
+      
+      // Update balances
+      transaction.update(senderRef, {
+        faithCoinBalance: senderBalance - amount
+      });
+      
+      transaction.update(recipientRef, {
+        faithCoinBalance: recipientDoc.data().faithCoinBalance + amount
+      });
+      
+      // Add transaction record
+      const transactionRef = doc(collection(db, "transactions"));
+      transaction.set(transactionRef, {
+        from: user.uid,
+        to: recipientId,
+        amount: amount,
+        timestamp: new Date()
+      });
+    });
+    
+    showNotification("Transaction successful!", 'success');
+    sendPage.classList.add("hidden");
+    dashboard.classList.remove("hidden");
+    recipientIdField.value = "";
+    amountField.value = "";
+  } catch (err) {
+    showNotification("Transaction failed: " + err.message, 'error');
+  }
+});
+
+// Bottom Navigation
+navHome.addEventListener("click", () => {
+  dashboard.classList.remove("hidden");
+  sendPage.classList.add("hidden");
+  receivePage.classList.add("hidden");
+  payBillsPage.classList.add("hidden");
+  
+  // Update active state
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  navHome.classList.add('active');
+});
+
+navTransactions.addEventListener("click", () => {
+  showNotification("Transactions are displayed on the home page", 'info');
+  
+  // Update active state
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  navTransactions.classList.add('active');
+});
+
+navScan.addEventListener("click", () => {
+  showNotification("Scan feature coming soon!", 'info');
+  
+  // Update active state
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  navScan.classList.add('active');
+});
+
+navProfile.addEventListener("click", () => {
+  settingsContainer.classList.remove("hidden");
+  
+  // Update active state
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  navProfile.classList.add('active');
+});
+
+// Logout
+logoutBtn.addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    authContainer.classList.remove("hidden");
+    dashboard.classList.add("hidden");
+    settingsContainer.classList.add("hidden");
+    emailField.value = "";
+    passwordField.value = "";
+    fullNameField.value = "";
+    msgEl.textContent = "";
+    msgEl.className = "msg";
+    showNotification("Logged out successfully", 'info');
+  } catch (err) {
+    showNotification("Error logging out: " + err.message, 'error');
+  }
+});
+
+// Check auth state
+auth.onAuthStateChanged(user => {
+  if (user) {
+    loadDashboard(user);
+  }
+});
+</script>
+</body>
+</html>
